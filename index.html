@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PCDIGA Armazem</title>
+    <style>
+:root {
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --text: #17202a;
+  --muted: #66727f;
+  --line: #d9e0e7;
+  --primary: #0b63ce;
+  --primary-dark: #084fa5;
+  --danger: #b42318;
+  --danger-bg: #fff0ee;
+  --code-bg: #111827;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); }
+button, input { font: inherit; }
+h1, h2, p { margin: 0; }
+
+.topbar {
+  align-items: center;
+  background: #101820;
+  color: #fff;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  padding: 28px clamp(16px, 4vw, 48px);
+}
+
+.eyebrow {
+  color: #67e8f9;
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+}
+
+h1 { font-size: clamp(26px, 3vw, 40px); line-height: 1.1; }
+.subtitle { color: #c8d3dd; line-height: 1.5; margin-top: 8px; max-width: 720px; }
+
+.stats {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(92px, 1fr));
+}
+
+.stats div {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  min-width: 92px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stats span { display: block; font-size: 24px; font-weight: 700; overflow-wrap: anywhere; }
+.stats small { color: #c8d3dd; }
+
+.layout {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.25fr);
+  padding: 24px clamp(16px, 4vw, 48px);
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.panel-title { margin-bottom: 18px; }
+.panel-title h2 { font-size: 20px; margin-bottom: 4px; }
+.panel-title p { color: var(--muted); line-height: 1.4; }
+
+.form-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+label {
+  color: var(--muted);
+  display: grid;
+  font-size: 13px;
+  font-weight: 700;
+  gap: 6px;
+}
+
+.wide { grid-column: 1 / -1; }
+
+input {
+  background: #fff;
+  border: 1px solid #cbd5df;
+  border-radius: 6px;
+  color: var(--text);
+  min-height: 42px;
+  padding: 10px 12px;
+  width: 100%;
+}
+
+input:focus {
+  border-color: var(--primary);
+  outline: 3px solid rgba(11, 99, 206, 0.14);
+}
+
+button, .import-button {
+  align-items: center;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 700;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 14px;
+}
+
+.primary { background: var(--primary); color: #fff; }
+.primary:hover { background: var(--primary-dark); }
+.danger { background: var(--danger-bg); color: var(--danger); }
+
+.tools {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.delete-form {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(180px, 1fr) auto;
+}
+
+.file-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.file-actions button, .import-button {
+  background: #edf2f7;
+  color: var(--text);
+}
+
+.file-actions .danger { background: var(--danger-bg); color: var(--danger); }
+.import-button input { display: none; }
+
+.list { display: grid; gap: 10px; }
+
+.record {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.record-header {
+  align-items: start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.record h3 { font-size: 17px; margin: 0 0 3px; }
+.record p { color: var(--muted); line-height: 1.45; }
+
+.badge {
+  background: #eaf2ff;
+  border-radius: 999px;
+  color: #174a8b;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
+.meta {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.meta div {
+  background: #f7f9fb;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+  padding: 10px;
+}
+
+.meta span {
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.console-line {
+  background: var(--code-bg);
+  border-radius: 6px;
+  color: #d1fae5;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  padding: 10px;
+}
+
+.record-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.record-actions button { background: #edf2f7; color: var(--text); }
+.record-actions .danger { background: var(--danger-bg); color: var(--danger); }
+
+.empty {
+  border: 1px dashed #b8c3cd;
+  border-radius: 8px;
+  color: var(--muted);
+  display: grid;
+  gap: 5px;
+  justify-items: center;
+  padding: 28px;
+  text-align: center;
+}
+
+.empty strong { color: var(--text); }
+
+@media (max-width: 920px) {
+  .topbar { align-items: stretch; flex-direction: column; }
+  .layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .stats, .form-grid, .meta, .delete-form { grid-template-columns: 1fr; }
+  .wide { grid-column: auto; }
+  .record-header { align-items: stretch; flex-direction: column; }
+}
+
+</style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">App portatil</p>
+        <h1>PCDIGA Armazem</h1>
+        <p class="subtitle">Registos de acessorios online. Abre em qualquer PC, telemovel ou rede Wi-Fi.</p>
+      </div>
+      <div class="stats" aria-label="Resumo dos registos">
+        <div><span id="totalRecords">0</span><small>Registos</small></div>
+        <div><span id="totalClasses">0</span><small>Classes</small></div>
+        <div><span id="latestPosition">-</span><small>Ultima posicao</small></div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel form-panel">
+        <div class="panel-title">
+          <h2>Adicionar registo</h2>
+          <p>Guarda no armazenamento local deste computador.</p>
+        </div>
+
+        <form id="recordForm" class="form-grid">
+          <label>Processo ID <input id="processoId" required autocomplete="off" placeholder="Ex: 412345678"></label>
+          <label>Serial Number <input id="serialNumber" required autocomplete="off" placeholder="Ex: SN123456"></label>
+          <label>ID Classe <input id="idClasse" required type="number" min="1" step="1" placeholder="Ex: 1"></label>
+          <label>Nome Classe <input id="nomeClasse" autocomplete="off" placeholder="Ex: Carregador"></label>
+          <label>ID Posicao <input id="idPosicao" required type="number" min="1" step="1" placeholder="Ex: 2"></label>
+          <label>Codigo Posicao <input id="codigoPosicao" autocomplete="off" placeholder="Ex: A01-02"></label>
+          <button class="primary wide" type="submit">Guardar registo</button>
+        </form>
+      </section>
+
+      <section class="panel records-panel">
+        <div class="panel-title">
+          <h2>Ver registos</h2>
+          <p>Pesquisa, exporta ou importa os dados para usar noutro computador.</p>
+        </div>
+
+        <div class="tools">
+          <input id="searchInput" class="search" autocomplete="off" placeholder="Pesquisar por processo, SN, classe ou posicao">
+          <form id="deleteForm" class="delete-form">
+            <input id="deleteSerial" autocomplete="off" placeholder="Serial number para apagar">
+            <button class="danger" type="submit">Apagar por SN</button>
+          </form>
+          <div class="file-actions">
+            <button id="exportButton" type="button">Exportar dados</button>
+            <label class="import-button">
+              Importar dados
+              <input id="importInput" type="file" accept="application/json,.json">
+            </label>
+            <button id="clearButton" class="danger" type="button">Limpar tudo</button>
+          </div>
+        </div>
+
+        <div id="recordList" class="list"></div>
+      </section>
+    </main>
+
+    <template id="emptyTemplate">
+      <div class="empty">
+        <strong>Sem registos encontrados.</strong>
+        <span>Adiciona um registo para aparecer nesta lista.</span>
+      </div>
+    </template>
+
+    <script>
+const STORAGE_KEY = "pcdiga-armazem-portatil";
+
+let state = loadState();
+
+const elements = {
+  recordForm: document.querySelector("#recordForm"),
+  deleteForm: document.querySelector("#deleteForm"),
+  searchInput: document.querySelector("#searchInput"),
+  recordList: document.querySelector("#recordList"),
+  exportButton: document.querySelector("#exportButton"),
+  importInput: document.querySelector("#importInput"),
+  clearButton: document.querySelector("#clearButton"),
+  totalRecords: document.querySelector("#totalRecords"),
+  totalClasses: document.querySelector("#totalClasses"),
+  latestPosition: document.querySelector("#latestPosition"),
+  emptyTemplate: document.querySelector("#emptyTemplate")
+};
+
+elements.recordForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const record = readRecordForm();
+
+  if (state.records.some((entry) => equalsSerial(entry.serial_number, record.serial_number))) {
+    alert("Ja existe um registo com esse serial number.");
+    return;
+  }
+
+  state.records.unshift(record);
+  state.nextId += 1;
+  saveState();
+  event.currentTarget.reset();
+  render();
+});
+
+elements.deleteForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const serialNumber = document.querySelector("#deleteSerial").value.trim();
+  if (!serialNumber) return;
+
+  deleteBySerial(serialNumber);
+  event.currentTarget.reset();
+});
+
+elements.searchInput.addEventListener("input", renderRecords);
+elements.exportButton.addEventListener("click", exportData);
+elements.importInput.addEventListener("change", importData);
+elements.clearButton.addEventListener("click", clearData);
+
+render();
+
+function readRecordForm() {
+  const idClasse = Number(document.querySelector("#idClasse").value);
+  const idPosicao = Number(document.querySelector("#idPosicao").value);
+
+  return {
+    id_registo: state.nextId,
+    processo_id: document.querySelector("#processoId").value.trim(),
+    serial_number: document.querySelector("#serialNumber").value.trim(),
+    id_classe: idClasse,
+    nome_classe: document.querySelector("#nomeClasse").value.trim() || `Classe ${idClasse}`,
+    id_posicao: idPosicao,
+    codigo_posicao: document.querySelector("#codigoPosicao").value.trim() || `POS-${idPosicao}`,
+    data_entrada: new Date().toISOString()
+  };
+}
+
+function render() {
+  renderRecords();
+  renderStats();
+}
+
+function renderRecords() {
+  const query = elements.searchInput.value.trim().toLowerCase();
+  const records = state.records.filter((record) => recordText(record).includes(query));
+
+  elements.recordList.innerHTML = "";
+
+  if (!records.length) {
+    elements.recordList.append(elements.emptyTemplate.content.cloneNode(true));
+    return;
+  }
+
+  records.forEach((record) => {
+    const card = document.createElement("article");
+    card.className = "record";
+    card.innerHTML = `
+      <div class="record-header">
+        <div>
+          <h3>Processo ${escapeHtml(record.processo_id)}</h3>
+          <p>SN: ${escapeHtml(record.serial_number)}</p>
+        </div>
+        <span class="badge">ID ${escapeHtml(record.id_registo)}</span>
+      </div>
+      <div class="meta">
+        <div><span>Classe</span>${escapeHtml(record.nome_classe)}</div>
+        <div><span>ID Classe</span>${escapeHtml(record.id_classe)}</div>
+        <div><span>Posicao</span>${escapeHtml(record.codigo_posicao)}</div>
+        <div><span>ID Posicao</span>${escapeHtml(record.id_posicao)}</div>
+        <div><span>Data entrada</span>${formatDate(record.data_entrada)}</div>
+        <div><span>Serial Number</span>${escapeHtml(record.serial_number)}</div>
+      </div>
+      <div class="console-line">
+        id: ${escapeHtml(record.id_registo)} | processo: ${escapeHtml(record.processo_id)} | SN: ${escapeHtml(record.serial_number)} | ${escapeHtml(record.nome_classe)} | ${escapeHtml(record.codigo_posicao)} | ${formatDate(record.data_entrada)}
+      </div>
+      <div class="record-actions">
+        <button data-action="load" data-id="${record.id_registo}">Carregar</button>
+        <button class="danger" data-action="delete" data-serial="${escapeHtml(record.serial_number)}">Apagar</button>
+      </div>
+    `;
+    card.addEventListener("click", handleRecordAction);
+    elements.recordList.append(card);
+  });
+}
+
+function renderStats() {
+  elements.totalRecords.textContent = state.records.length;
+  elements.totalClasses.textContent = new Set(state.records.map((record) => record.nome_classe).filter(Boolean)).size;
+  elements.latestPosition.textContent = state.records[0]?.codigo_posicao || "-";
+}
+
+function handleRecordAction(event) {
+  const button = event.target.closest("button");
+  if (!button) return;
+
+  if (button.dataset.action === "load") {
+    const record = state.records.find((entry) => String(entry.id_registo) === button.dataset.id);
+    if (record) fillForm(record);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  if (button.dataset.action === "delete") {
+    deleteBySerial(button.dataset.serial);
+  }
+}
+
+function deleteBySerial(serialNumber) {
+  if (!confirm(`Apagar o registo com serial number "${serialNumber}"?`)) return;
+
+  const before = state.records.length;
+  state.records = state.records.filter((record) => !equalsSerial(record.serial_number, serialNumber));
+
+  if (state.records.length === before) {
+    alert("Serial number nao encontrado.");
+    return;
+  }
+
+  saveState();
+  render();
+}
+
+function fillForm(record) {
+  document.querySelector("#processoId").value = record.processo_id;
+  document.querySelector("#serialNumber").value = record.serial_number;
+  document.querySelector("#idClasse").value = record.id_classe;
+  document.querySelector("#nomeClasse").value = record.nome_classe;
+  document.querySelector("#idPosicao").value = record.id_posicao;
+  document.querySelector("#codigoPosicao").value = record.codigo_posicao;
+}
+
+function exportData() {
+  const payload = JSON.stringify(state, null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `pcdiga-registos-${new Date().toISOString().slice(0, 10)}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const imported = JSON.parse(reader.result);
+      const records = Array.isArray(imported.records) ? imported.records : [];
+      const highestId = records.reduce((max, record) => Math.max(max, Number(record.id_registo) || 0), 0);
+      state = {
+        nextId: Math.max(Number(imported.nextId) || 1, highestId + 1),
+        records
+      };
+      saveState();
+      render();
+      alert("Dados importados.");
+    } catch {
+      alert("Ficheiro invalido.");
+    }
+    event.target.value = "";
+  };
+  reader.readAsText(file);
+}
+
+function clearData() {
+  if (!confirm("Limpar todos os registos deste computador?")) return;
+  state = { nextId: 1, records: [] };
+  saveState();
+  render();
+}
+
+function loadState() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    const records = Array.isArray(parsed.records) ? parsed.records : [];
+    const highestId = records.reduce((max, record) => Math.max(max, Number(record.id_registo) || 0), 0);
+    return {
+      nextId: Math.max(Number(parsed.nextId) || 1, highestId + 1),
+      records
+    };
+  } catch {
+    return { nextId: 1, records: [] };
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function recordText(record) {
+  return [
+    record.id_registo,
+    record.processo_id,
+    record.serial_number,
+    record.id_classe,
+    record.nome_classe,
+    record.id_posicao,
+    record.codigo_posicao,
+    record.data_entrada
+  ].join(" ").toLowerCase();
+}
+
+function equalsSerial(left, right) {
+  return String(left || "").trim().toLowerCase() === String(right || "").trim().toLowerCase();
+}
+
+function formatDate(value) {
+  if (!value) return "-";
+  return new Intl.DateTimeFormat("pt-PT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(value));
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+</script>
+  </body>
+</html>
