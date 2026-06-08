@@ -276,22 +276,10 @@ body.locked .auth-screen { display: grid; }
     <section id="authView" class="auth-screen">
       <div class="auth-panel">
         <h1>Pcdigaarmazém</h1>
-        <p>Cria uma conta ou entra para aceder aos registos de acessórios.</p>
+       <p>Entre para aceder aos registos de acessórios.</p>
         <div class="auth-tabs">
           <button id="showLogin" class="active" type="button">Entrar</button>
-          <button id="showRegister" type="button">Registar</button>
-        </div>
-        <form id="loginForm" class="auth-form">
-          <label>Utilizador <input id="loginUser" required autocomplete="username"></label>
-          <label>Password <input id="loginPassword" required type="password" autocomplete="current-password"></label>
-          <button class="primary" type="submit">Entrar</button>
-        </form>
-        <form id="registerForm" class="auth-form" hidden>
-          <label>Novo utilizador <input id="registerUser" required autocomplete="username"></label>
-          <label>Password <input id="registerPassword" required type="password" autocomplete="new-password" minlength="4"></label>
-          <button class="primary" type="submit">Criar conta</button>
-        </form>
-        <div id="authError" class="auth-error"></div>
+                <div id="authError" class="auth-error"></div>
       </div>
     </section>
     <header class="topbar">
@@ -418,9 +406,7 @@ elements.exportButton.addEventListener("click", exportData);
 elements.importInput.addEventListener("change", importData);
 elements.clearButton.addEventListener("click", clearData);
 auth.showLogin.addEventListener("click", () => showAuthForm("login"));
-auth.showRegister.addEventListener("click", () => showAuthForm("register"));
 auth.loginForm.addEventListener("submit", login);
-auth.registerForm.addEventListener("submit", register);
 auth.logoutButton.addEventListener("click", logout);
 updateAuthView();
 render();
@@ -429,31 +415,23 @@ function showAuthForm(mode) {
   auth.error.textContent = "";
   const isLogin = mode === "login";
   auth.loginForm.hidden = !isLogin;
-  auth.registerForm.hidden = isLogin;
   auth.showLogin.classList.toggle("active", isLogin);
-  auth.showRegister.classList.toggle("active", !isLogin);
 }
 function login(event) {
   event.preventDefault();
+
   const username = document.querySelector("#loginUser").value.trim();
   const password = document.querySelector("#loginPassword").value;
-  const user = getUsers().find((entry) => entry.username.toLowerCase() === username.toLowerCase());
-  if (!user || user.password !== encodePassword(password)) { auth.error.textContent = "Utilizador ou password incorretos."; return; }
-  localStorage.setItem(SESSION_KEY, user.username);
+
+  if (password !== "PcdigaBOSS") {
+    auth.error.textContent = "Password incorreta.";
+    return;
+  }
+
+  localStorage.setItem(SESSION_KEY, username);
   auth.loginForm.reset();
   updateAuthView();
 }
-function register(event) {
-  event.preventDefault();
-  const username = document.querySelector("#registerUser").value.trim();
-  const password = document.querySelector("#registerPassword").value;
-  const users = getUsers();
-  if (users.some((entry) => entry.username.toLowerCase() === username.toLowerCase())) { auth.error.textContent = "Esse utilizador já existe."; return; }
-  users.push({ username, password: encodePassword(password), createdAt: new Date().toISOString() });
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  localStorage.setItem(SESSION_KEY, username);
-  auth.registerForm.reset();
-  updateAuthView();
 }
 function logout() { localStorage.removeItem(SESSION_KEY); updateAuthView(); }
 function updateAuthView() {
@@ -467,6 +445,8 @@ function encodePassword(password) { return btoa(unescape(encodeURIComponent(pass
 function readRecordForm() {
   const idClasse = Number(document.querySelector("#idClasse").value);
   const idPosicao = Number(document.querySelector("#idPosicao").value);
+  utilizador: localStorage.getItem(SESSION_KEY),
+  data_adicionado: new Date().toISOString(),
 
   return {
     id_registo: state.nextId,
