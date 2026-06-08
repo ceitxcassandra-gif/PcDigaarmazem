@@ -270,16 +270,19 @@ body.locked .auth-screen { display: grid; }
   .record-header { align-items: stretch; flex-direction: column; }
 }
 
-</style>
+    </style>
   </head>
   <body class="locked">
     <section id="authView" class="auth-screen">
       <div class="auth-panel">
         <h1>Pcdigaarmazém</h1>
-       <p>Entre para aceder aos registos de acessórios.</p>
-        <div class="auth-tabs">
-          <button id="showLogin" class="active" type="button">Entrar</button>
-                <div id="authError" class="auth-error"></div>
+        <p>Entre para aceder aos registos de acessórios.</p>
+        <form id="loginForm" class="auth-form">
+          <label>Utilizador <input id="loginUser" required autocomplete="username"></label>
+          <label>Password <input id="loginPassword" required type="password" autocomplete="current-password"></label>
+          <button class="primary" type="submit">Entrar</button>
+        </form>
+        <div id="authError" class="auth-error"></div>
       </div>
     </section>
     <header class="topbar">
@@ -354,9 +357,9 @@ const STORAGE_KEY = "pcdigaarmazem-registos";
 const USERS_KEY = "pcdigaarmazem-users";
 const SESSION_KEY = "pcdigaarmazem-session";
 const auth = {
-  loginForm: document.querySelector("#loginForm"), registerForm: document.querySelector("#registerForm"),
-  showLogin: document.querySelector("#showLogin"), showRegister: document.querySelector("#showRegister"),
-  error: document.querySelector("#authError"), sessionUser: document.querySelector("#sessionUser"),
+  loginForm: document.querySelector("#loginForm"),
+  error: document.querySelector("#authError"),
+  sessionUser: document.querySelector("#sessionUser"),
   logoutButton: document.querySelector("#logoutButton")
 };
 
@@ -405,24 +408,27 @@ elements.searchInput.addEventListener("input", renderRecords);
 elements.exportButton.addEventListener("click", exportData);
 elements.importInput.addEventListener("change", importData);
 elements.clearButton.addEventListener("click", clearData);
-auth.showLogin.addEventListener("click", () => showAuthForm("login"));
 auth.loginForm.addEventListener("submit", login);
 auth.logoutButton.addEventListener("click", logout);
 updateAuthView();
 render();
 
-function showAuthForm(mode) {
-  auth.error.textContent = "";
-  const isLogin = mode === "login";
-  auth.loginForm.hidden = !isLogin;
-  auth.showLogin.classList.toggle("active", isLogin);
-}
 function login(event) {
   event.preventDefault();
 
   const username = document.querySelector("#loginUser").value.trim();
   const password = document.querySelector("#loginPassword").value;
 
+  // Validar se o username existe
+  const users = getUsers();
+  const userExists = users.some(u => u.username.toLowerCase() === username.toLowerCase());
+
+  if (!userExists) {
+    auth.error.textContent = "Utilizador não existe.";
+    return;
+  }
+
+  // Validar password
   if (password !== "PcdigaBOSS") {
     auth.error.textContent = "Password incorreta.";
     return;
@@ -432,21 +438,22 @@ function login(event) {
   auth.loginForm.reset();
   updateAuthView();
 }
-}
+
 function logout() { localStorage.removeItem(SESSION_KEY); updateAuthView(); }
+
 function updateAuthView() {
   const username = localStorage.getItem(SESSION_KEY);
   document.body.classList.toggle("locked", !username);
   auth.sessionUser.textContent = username ? `Sessão: ${username}` : "";
   auth.error.textContent = "";
 }
+
 function getUsers() { try { const users = JSON.parse(localStorage.getItem(USERS_KEY)); return Array.isArray(users) ? users : []; } catch { return []; } }
 function encodePassword(password) { return btoa(unescape(encodeURIComponent(password))); }
+
 function readRecordForm() {
   const idClasse = Number(document.querySelector("#idClasse").value);
   const idPosicao = Number(document.querySelector("#idPosicao").value);
-  utilizador: localStorage.getItem(SESSION_KEY),
-  data_adicionado: new Date().toISOString(),
 
   return {
     id_registo: state.nextId,
@@ -456,6 +463,8 @@ function readRecordForm() {
     nome_classe: document.querySelector("#nomeClasse").value.trim() || `Classe ${idClasse}`,
     id_posicao: idPosicao,
     codigo_posicao: document.querySelector("#codigoPosicao").value.trim() || `POS-${idPosicao}`,
+    utilizador: localStorage.getItem(SESSION_KEY),
+    data_adicionado: new Date().toISOString(),
     data_entrada: new Date().toISOString()
   };
 }
@@ -492,11 +501,11 @@ function renderRecords() {
         <div><span>ID Classe</span>${escapeHtml(record.id_classe)}</div>
         <div><span>Posicao</span>${escapeHtml(record.codigo_posicao)}</div>
         <div><span>ID Posicao</span>${escapeHtml(record.id_posicao)}</div>
-        <div><span>Data entrada</span>${formatDate(record.data_entrada)}</div>
-        <div><span>Serial Number</span>${escapeHtml(record.serial_number)}</div>
+        <div><span>Utilizador</span>${escapeHtml(record.utilizador)}</div>
+        <div><span>Data adicionado</span>${formatDate(record.data_adicionado)}</div>
       </div>
       <div class="console-line">
-        id: ${escapeHtml(record.id_registo)} | processo: ${escapeHtml(record.processo_id)} | SN: ${escapeHtml(record.serial_number)} | ${escapeHtml(record.nome_classe)} | ${escapeHtml(record.codigo_posicao)} | ${formatDate(record.data_entrada)}
+        id: ${escapeHtml(record.id_registo)} | processo: ${escapeHtml(record.processo_id)} | SN: ${escapeHtml(record.serial_number)} | ${escapeHtml(record.nome_classe)} | ${escapeHtml(record.codigo_posicao)}
       </div>
       <div class="record-actions">
         <button data-action="load" data-id="${record.id_registo}">Carregar</button>
@@ -624,7 +633,8 @@ function recordText(record) {
     record.nome_classe,
     record.id_posicao,
     record.codigo_posicao,
-    record.data_entrada
+    record.data_adicionado,
+    record.utilizador
   ].join(" ").toLowerCase();
 }
 
@@ -652,7 +662,6 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-</script>
+    </script>
   </body>
 </html>
-
