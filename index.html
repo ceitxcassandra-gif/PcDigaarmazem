@@ -224,6 +224,7 @@ button, .import-button {
 }
 
 .record-actions button { background: #edf2f7; color: var(--text); }
+.record-actions button[data-action="load"] { display: none; }
 .record-actions .danger { background: var(--danger-bg); color: var(--danger); }
 
 .empty {
@@ -505,7 +506,7 @@ function renderRecords() {
         <div><span>Data adicionado</span>${formatDate(record.data_adicionado)}</div>
       </div>
       <div class="console-line">
-        id: ${escapeHtml(record.id_registo)} | processo: ${escapeHtml(record.processo_id)} | SN: ${escapeHtml(record.serial_number)} | ${escapeHtml(record.nome_classe)} | ${escapeHtml(record.codigo_posicao)}
+        id: ${escapeHtml(record.id_registo)} | processo: ${escapeHtml(record.processo_id)} | SN: ${escapeHtml(record.serial_number)} | ${escapeHtml(record.nome_classe)} | ${escapeHtml(record.codi[...]
       </div>
       <div class="record-actions">
         <button data-action="load" data-id="${record.id_registo}">Carregar</button>
