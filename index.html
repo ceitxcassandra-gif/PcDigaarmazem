@@ -273,7 +273,7 @@ body.locked .auth-screen { display: grid; }
 
     </style>
   </head>
-  <body class="locked">
+  <body>
     <section id="authView" class="auth-screen">
       <div class="auth-panel">
         <h1>Pcdigaarmazém</h1>
@@ -417,19 +417,19 @@ function login(event) {
   const username = document.querySelector("#loginUser").value.trim();
   const password = document.querySelector("#loginPassword").value;
 
-  // Validar password
-  if (password !== "PcdigaBOSS") {
-    auth.error.textContent = "Password incorreta.";
-    return;
-  }
-
   if (!username) {
     auth.error.textContent = "Preencha o nome de utilizador.";
     return;
   }
 
+  if (password !== "PcdigaBOSS") {
+    auth.error.textContent = "Password incorreta.";
+    return;
+  }
+
   localStorage.setItem(SESSION_KEY, username);
   auth.loginForm.reset();
+  auth.error.textContent = "";
   updateAuthView();
 }
 
@@ -437,9 +437,12 @@ function logout() { localStorage.removeItem(SESSION_KEY); updateAuthView(); }
 
 function updateAuthView() {
   const username = localStorage.getItem(SESSION_KEY);
-  document.body.classList.toggle("locked", !username);
+  const locked = !username;
+  document.body.classList.toggle("locked", locked);
+  document.querySelector("#authView").style.display = locked ? "grid" : "none";
+  document.querySelector("header").style.display = locked ? "none" : "flex";
+  document.querySelector("main").style.display = locked ? "none" : "grid";
   auth.sessionUser.textContent = username ? `Sessão: ${username}` : "";
-  auth.error.textContent = "";
 }
 
 function readRecordForm() {
