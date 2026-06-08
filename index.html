@@ -417,18 +417,14 @@ function login(event) {
   const username = document.querySelector("#loginUser").value.trim();
   const password = document.querySelector("#loginPassword").value;
 
-  // Validar se o username existe
-  const users = getUsers();
-  const userExists = users.some(u => u.username.toLowerCase() === username.toLowerCase());
-
-  if (!userExists) {
-    auth.error.textContent = "Utilizador não existe.";
-    return;
-  }
-
   // Validar password
   if (password !== "PcdigaBOSS") {
     auth.error.textContent = "Password incorreta.";
+    return;
+  }
+
+  if (!username) {
+    auth.error.textContent = "Preencha o nome de utilizador.";
     return;
   }
 
@@ -445,9 +441,6 @@ function updateAuthView() {
   auth.sessionUser.textContent = username ? `Sessão: ${username}` : "";
   auth.error.textContent = "";
 }
-
-function getUsers() { try { const users = JSON.parse(localStorage.getItem(USERS_KEY)); return Array.isArray(users) ? users : []; } catch { return []; } }
-function encodePassword(password) { return btoa(unescape(encodeURIComponent(password))); }
 
 function readRecordForm() {
   const idClasse = Number(document.querySelector("#idClasse").value);
