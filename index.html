@@ -328,6 +328,7 @@ body.locked .auth-screen { display: grid; }
 
         <div class="tools">
           <input id="searchInput" class="search" autocomplete="off" placeholder="Pesquisar por processo, SN, classe ou posicao">
+<input id="searchSN" class="search" autocomplete="off" placeholder="Pesquisar apenas por Serial Number">
           <form id="deleteForm" class="delete-form">
             <input id="deleteSerial" autocomplete="off" placeholder="Serial number para apagar">
             <button class="danger" type="submit">Apagar por SN</button>
@@ -404,6 +405,7 @@ elements.deleteForm.addEventListener("submit", (event) => {
 });
 
 elements.searchInput.addEventListener("input", renderRecords);
+document.querySelector("#searchSN").addEventListener("input", renderRecords);
 elements.exportButton.addEventListener("click", exportData);
 elements.importInput.addEventListener("change", importData);
 auth.loginForm.addEventListener("submit", login);
@@ -467,7 +469,18 @@ function render() {
 
 function renderRecords() {
   const query = elements.searchInput.value.trim().toLowerCase();
-  const records = state.records.filter((record) => recordText(record).includes(query));
+  const snQuery = document.querySelector("#searchSN").value.trim().toLowerCase();
+
+  const records = state.records.filter((record) => {
+    const matchesGeneral = !query || recordText(record).includes(query);
+    const matchesSN =
+      !snQuery ||
+      String(record.serial_number || "")
+        .toLowerCase()
+        .includes(snQuery);
+
+    return matchesGeneral && matchesSN;
+  });
 
   elements.recordList.innerHTML = "";
 
